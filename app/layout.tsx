@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Montserrat, Open_Sans } from "next/font/google";
 import { AppShell } from "@/components/layout/app-shell";
 import { ThemeProvider } from "@/components/theme-provider";
+import { PwaBootstrap } from "@/features/pwa/pwa-bootstrap";
 import "./globals.css";
 
 export const dynamic = "force-dynamic";
@@ -36,6 +37,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" suppressHydrationWarning>
       <body className={`${montserrat.variable} ${openSans.variable}`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <PwaBootstrap />
           <AppShell>{children}</AppShell>
         </ThemeProvider>
       </body>

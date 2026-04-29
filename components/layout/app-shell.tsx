@@ -1,8 +1,11 @@
 import Link from "next/link";
+import { getServerSession } from "next-auth";
 import { prisma } from "@/lib/prisma";
 import { Home, FolderKanban, MessagesSquare, Inbox, ShieldCheck, ScrollText, Activity, FileCode2, Settings, PlusCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { SessionMenu } from "@/components/auth/session-menu";
+import { authOptions } from "@/server/auth/options";
 
 const nav = [
   ["Home", "/", Home],
@@ -17,7 +20,10 @@ const nav = [
 ] as const;
 
 export async function AppShell({ children }: { children: React.ReactNode }) {
-  const pendingApprovals = await prisma.approvalRequest.count({ where: { status: "PENDING" } }).catch(() => 0);
+  const [pendingApprovals, session] = await Promise.all([
+    prisma.approvalRequest.count({ where: { status: "PENDING" } }).catch(() => 0),
+    getServerSession(authOptions).catch(() => null)
+  ]);
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
@@ -42,9 +48,12 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
           <div className="flex items-center justify-between gap-3">
             <Link href="/" className="font-[family-name:var(--font-heading)] font-semibold lg:hidden">Codex Companion</Link>
             <div className="hidden text-sm text-[var(--muted-foreground)] lg:block">Approval-first coding cockpit</div>
-            <Button asChild size="sm">
-              <Link href="/threads"><PlusCircle className="h-4 w-4" /> Compose</Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button asChild size="sm">
+                <Link href="/threads"><PlusCircle className="h-4 w-4" /> Compose</Link>
+              </Button>
+              {session?.user ? <SessionMenu email={session.user.email} /> : null}
+            </div>
           </div>
         </header>
 

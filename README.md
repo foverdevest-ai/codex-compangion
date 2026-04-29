@@ -58,6 +58,20 @@ npm run dev
 
 Open `http://localhost:3000`.
 
+## Mobile Cloud Setup
+
+For real 4G/mobile usage, deploy the app to Vercel with Neon Postgres and Google login. Codex execution should run in a separate cloud runner; the phone only sends prompts, watches runs, and approves/rejects actions.
+
+See [docs/deployment/mobile-cloud.md](docs/deployment/mobile-cloud.md).
+
+Production uses:
+
+```bash
+npm run db:deploy
+```
+
+Use `npm run db:seed` only for local/demo data.
+
 ## Architecture
 
 - `app/` contains routes and API endpoints.
