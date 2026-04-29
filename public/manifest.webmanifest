@@ -1,0 +1,10 @@
+{
+  "name": "Codex Companion",
+  "short_name": "Companion",
+  "description": "Approval-first prompt cockpit for long-lived coding projects.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7f8fb",
+  "theme_color": "#111827",
+  "icons": []
+}

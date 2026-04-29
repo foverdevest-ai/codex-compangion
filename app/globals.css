@@ -1,0 +1,155 @@
+@import "tailwindcss";
+
+:root {
+  --color-primary: #fd5e2d;
+  --color-primary-hover: #e5532a;
+  --color-primary-foreground: #ffffff;
+  --color-primary-tint-02: #f2824b;
+  --color-primary-tint-03: #f59e73;
+
+  --color-background: #f6f5f5;
+  --color-foreground: #0a0a0a;
+  --color-card: rgba(255, 255, 255, 0.72);
+  --color-card-foreground: #0a0a0a;
+
+  --color-gray-50: #ffffff;
+  --color-gray-100: #f6f5f5;
+  --color-gray-200: #e6e6e6;
+  --color-gray-400: #989898;
+  --color-gray-500: #656565;
+  --color-gray-600: #4d4d4d;
+  --color-gray-700: #333333;
+  --color-gray-900: #0a0a0a;
+
+  --color-info: #064e97;
+  --color-focus: #1198da;
+  --color-link: #0b61b9;
+  --color-secondary: #4356ff;
+  --color-secondary-light: #d6e9ff;
+  --color-warning-surface: #fff7ee;
+  --color-warning-border: #f2d0a8;
+  --color-success-surface: #e8f7ee;
+  --color-success: #16a34a;
+  --color-error: #ef4444;
+
+  --color-glass-bg: rgba(255, 255, 255, 0.72);
+  --color-glass-border: #ffffff;
+  --color-glass-inner: rgba(255, 255, 255, 0.95);
+  --color-glass-dark: rgba(15, 25, 40, 0.95);
+  --glass-blur: 15px;
+  --glass-shadow: 0px 0px 40px 0px rgba(211, 211, 211, 0.1);
+  --glass-elevation: 0px 1px 16px 0px rgba(128, 128, 128, 0.12);
+
+  --font-heading: var(--font-montserrat), "Montserrat", sans-serif;
+  --font-body: var(--font-open-sans), "Open Sans", sans-serif;
+
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 24px;
+  --radius-pill: 9999px;
+
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 16px;
+  --space-lg: 24px;
+
+  --color-surface: var(--color-gray-50);
+  --color-surface-muted: #f9f9fc;
+  --color-surface-hover: #f8fbff;
+  --color-surface-input: var(--color-gray-50);
+  --color-text-primary: #192b4a;
+  --color-text-secondary: var(--color-gray-500);
+  --color-text-muted: var(--color-gray-400);
+  --color-text-on-primary: #ffffff;
+  --color-border: var(--color-gray-200);
+  --color-border-focus: var(--color-focus);
+  --color-accent: var(--color-secondary);
+  --color-accent-light: var(--color-secondary-light);
+  --color-action-primary: var(--color-primary);
+  --color-action-primary-hover: var(--color-primary-hover);
+  --color-action-link: var(--color-link);
+
+  --background: var(--color-background);
+  --foreground: var(--color-text-primary);
+  --card: var(--color-card);
+  --card-foreground: var(--color-card-foreground);
+  --muted: var(--color-surface-muted);
+  --muted-foreground: var(--color-text-secondary);
+  --border: var(--color-border);
+  --primary: var(--color-action-primary);
+  --primary-foreground: var(--color-primary-foreground);
+  --accent: var(--color-accent);
+  --destructive: var(--color-error);
+  --success: var(--color-success);
+  --warning: var(--color-primary);
+  --ring: var(--color-focus);
+}
+
+.dark {
+  --color-background: #101827;
+  --color-card: rgba(16, 24, 39, 0.72);
+  --color-card-foreground: #f8fafc;
+  --color-surface-muted: rgba(30, 41, 59, 0.8);
+  --color-surface-input: rgba(15, 23, 42, 0.9);
+  --color-text-primary: #f8fafc;
+  --color-text-secondary: #cbd5e1;
+  --color-text-muted: #94a3b8;
+  --color-border: rgba(255, 255, 255, 0.14);
+  --color-glass-bg: rgba(15, 23, 42, 0.68);
+  --color-glass-border: rgba(255, 255, 255, 0.16);
+  --background: var(--color-background);
+  --foreground: var(--color-text-primary);
+  --card: var(--color-card);
+  --card-foreground: var(--color-card-foreground);
+  --muted: var(--color-surface-muted);
+  --muted-foreground: var(--color-text-secondary);
+  --border: var(--color-border);
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-body);
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  outline-color: var(--ring);
+}
+
+.safe-bottom {
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.glass-panel {
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  background: var(--color-glass-bg);
+  border: 2px solid var(--color-glass-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--glass-shadow);
+}
+
+.glass-inner {
+  background: var(--color-glass-inner);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-pill);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-heading);
+  color: var(--color-text-primary);
+}

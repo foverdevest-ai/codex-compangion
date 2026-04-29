@@ -1,0 +1,296 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ThreadStatus {
+  ACTIVE
+  ARCHIVED
+  PAUSED
+}
+
+enum MessageRole {
+  USER
+  ASSISTANT
+  SYSTEM
+  TOOL
+}
+
+enum RunStatus {
+  QUEUED
+  RUNNING
+  WAITING_APPROVAL
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum RunEventType {
+  OUTPUT_DELTA
+  OUTPUT_DONE
+  STATUS_CHANGE
+  APPROVAL_REQUESTED
+  APPROVAL_RESOLVED
+  ERROR
+  SYSTEM_NOTE
+}
+
+enum ApprovalStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+  CANCELLED
+}
+
+enum ApprovalType {
+  FILE_WRITE
+  FILE_DELETE
+  COMMAND_EXECUTION
+  NETWORK_ACCESS
+  TOOL_USE
+  ENV_ACCESS
+  GIT_ACTION
+  OTHER
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum ArtifactType {
+  CODE_SNIPPET
+  DOCUMENT
+  PROMPT
+  FILE
+  NOTE
+  LOG
+}
+
+enum NotificationType {
+  APPROVAL_PENDING
+  APPROVAL_RESOLVED
+  RUN_FAILED
+  RUN_COMPLETED
+  SYSTEM_NOTICE
+  SYNC_ISSUE
+}
+
+model User {
+  id            String       @id @default(cuid())
+  email         String       @unique
+  name          String
+  imageUrl      String?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  projects      Project[]
+  settings      AppSetting[]
+  notifications Notification[]
+}
+
+model Project {
+  id               String            @id @default(cuid())
+  ownerId          String
+  name             String
+  slug             String            @unique
+  description      String
+  status           String            @default("ACTIVE")
+  tags             String[]          @default([])
+  lastActiveAt     DateTime          @default(now())
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  owner            User              @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  contexts         ProjectContext[]
+  threads          Thread[]
+  promptTemplates  PromptTemplate[]
+  artifacts        Artifact[]
+  approvalRequests ApprovalRequest[]
+  runs             Run[]
+}
+
+model ProjectContext {
+  id        String   @id @default(cuid())
+  projectId String
+  label     String
+  kind      String
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+}
+
+model Thread {
+  id               String            @id @default(cuid())
+  projectId        String
+  title            String
+  status           ThreadStatus      @default(ACTIVE)
+  summary          String?
+  unread           Boolean           @default(false)
+  draft            String?
+  lastMessageAt    DateTime          @default(now())
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  project          Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  messages         Message[]
+  runs             Run[]
+  artifacts        Artifact[]
+  attachments      Attachment[]
+  approvalRequests ApprovalRequest[]
+
+  @@index([projectId, lastMessageAt])
+}
+
+model Message {
+  id          String      @id @default(cuid())
+  threadId    String
+  role        MessageRole
+  content     String
+  metadata    Json?
+  createdAt   DateTime    @default(now())
+  thread      Thread      @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  attachments Attachment[]
+}
+
+model Run {
+  id               String            @id @default(cuid())
+  projectId        String
+  threadId         String
+  providerRunId    String?
+  status           RunStatus         @default(QUEUED)
+  title            String
+  outputPreview    String?
+  startedAt        DateTime?
+  completedAt      DateTime?
+  failedAt         DateTime?
+  durationMs       Int?
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  project          Project           @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  thread           Thread            @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  events           RunEvent[]
+  approvalRequests ApprovalRequest[]
+}
+
+model RunEvent {
+  id        String       @id @default(cuid())
+  runId     String
+  type      RunEventType
+  sequence  Int
+  content   String?
+  payload   Json?
+  createdAt DateTime     @default(now())
+  run       Run          @relation(fields: [runId], references: [id], onDelete: Cascade)
+
+  @@unique([runId, sequence])
+}
+
+model ApprovalRequest {
+  id              String             @id @default(cuid())
+  projectId       String
+  threadId        String
+  runId           String
+  requestedAt     DateTime           @default(now())
+  expiresAt       DateTime?
+  status          ApprovalStatus      @default(PENDING)
+  approvalType    ApprovalType
+  title           String
+  summary         String
+  detailedReason  String
+  riskLevel       RiskLevel           @default(MEDIUM)
+  targetResource  String?
+  rawPayload      Json?
+  actionLabel     String
+  actionContext   String?
+  approvedAt      DateTime?
+  rejectedAt      DateTime?
+  decisionNote    String?
+  createdBySystem Boolean            @default(true)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  project         Project            @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  thread          Thread             @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  run             Run                @relation(fields: [runId], references: [id], onDelete: Cascade)
+  decisions       ApprovalDecision[]
+
+  @@index([status, requestedAt])
+}
+
+model ApprovalDecision {
+  id                String          @id @default(cuid())
+  approvalRequestId String
+  status            ApprovalStatus
+  note              String?
+  decidedAt         DateTime        @default(now())
+  decidedBy         String          @default("single-user")
+  approvalRequest   ApprovalRequest @relation(fields: [approvalRequestId], references: [id], onDelete: Cascade)
+}
+
+model PromptTemplate {
+  id        String   @id @default(cuid())
+  projectId String?
+  title     String
+  body      String
+  tags      String[] @default([])
+  isGlobal  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+}
+
+model Artifact {
+  id        String       @id @default(cuid())
+  projectId String
+  threadId  String?
+  type      ArtifactType
+  title     String
+  content   String
+  path      String?
+  tags      String[]     @default([])
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  project   Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  thread    Thread?      @relation(fields: [threadId], references: [id], onDelete: SetNull)
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  threadId  String
+  messageId String?
+  name      String
+  mimeType  String
+  url       String
+  createdAt DateTime @default(now())
+  thread    Thread   @relation(fields: [threadId], references: [id], onDelete: Cascade)
+  message   Message? @relation(fields: [messageId], references: [id], onDelete: SetNull)
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String
+  type      NotificationType
+  title     String
+  body      String
+  readAt    DateTime?
+  payload   Json?
+  createdAt DateTime         @default(now())
+  user      User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model AppSetting {
+  id        String   @id @default(cuid())
+  userId    String
+  key       String
+  value     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, key])
+}
