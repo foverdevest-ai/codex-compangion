@@ -18,7 +18,7 @@ export default async function ApprovalsPage({ searchParams }: { searchParams: Pr
 
   return (
     <div className="space-y-5">
-      <div>
+      <div className="min-w-0">
         <h1 className="text-2xl font-semibold">Approvals</h1>
         <p className="mt-1 text-sm text-[var(--muted-foreground)]">
           {activeProject ? `Review Codex actions for ${activeProject.name}.` : "Choose a project to focus approval review."}
@@ -26,7 +26,7 @@ export default async function ApprovalsPage({ searchParams }: { searchParams: Pr
       </div>
       <div className="grid gap-5 lg:grid-cols-[1fr_420px]">
         <section className="space-y-3">
-          <Input placeholder="Filter by project, thread, risk, type, or resource..." />
+          <Input placeholder="Filter approvals..." inputMode="search" />
           {!approvals.length ? (
             <Card>
               <CardContent className="p-6">
@@ -40,21 +40,21 @@ export default async function ApprovalsPage({ searchParams }: { searchParams: Pr
               <Card className={approval.id === selectedApproval?.id ? "border-[var(--accent)]" : ""}>
                 <CardContent className="p-4">
                   <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
-                    <div>
+                    <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <span className="font-medium">{approval.title}</span>
                         <ApprovalStatusBadge status={approval.status} />
                         <RiskBadge risk={approval.riskLevel} />
                       </div>
-                      <p className="mt-1 text-sm text-[var(--muted-foreground)]">{approval.summary}</p>
+                      <p className="mt-1 line-clamp-2 text-sm text-[var(--muted-foreground)]">{approval.summary}</p>
                       <div className="mt-2 flex flex-wrap gap-2 text-xs text-[var(--muted-foreground)]">
-                        <span>{approval.project.name}</span>
+                        <span className="min-w-0 max-w-full truncate">{approval.project.name}</span>
                         <span>/</span>
-                        <span>{approval.thread.title}</span>
+                        <span className="min-w-0 max-w-full truncate">{approval.thread.title}</span>
                         {approval.targetResource ? <Badge>{approval.targetResource}</Badge> : null}
                       </div>
                     </div>
-                    <div className="text-xs text-[var(--muted-foreground)]">{approval.requestedAt.toLocaleString()}</div>
+                    <div className="shrink-0 text-xs text-[var(--muted-foreground)]">{approval.requestedAt.toLocaleString()}</div>
                   </div>
                 </CardContent>
               </Card>

@@ -10,13 +10,13 @@ export default async function RunsPage() {
   return (
     <div className="space-y-5">
       <div><h1 className="text-2xl font-semibold">Runs</h1><p className="mt-1 text-sm text-[var(--muted-foreground)]">Execution history with status, duration, output previews, and approval links.</p></div>
-      <Input placeholder="Filter runs..." />
+      <Input placeholder="Filter runs..." inputMode="search" />
       <div className="space-y-3">
         {runs.map((run) => (
           <Link key={run.id} href={`/threads/${run.threadId}`}>
             <Card><CardContent className="flex flex-col justify-between gap-3 p-4 sm:flex-row sm:items-center">
-              <div><div className="font-medium">{run.title}</div><div className="text-sm text-[var(--muted-foreground)]">{run.project.name} / {run.thread.title}</div><div className="mt-1 text-sm text-[var(--muted-foreground)]">{run.outputPreview}</div></div>
-              <div className="flex items-center gap-2"><RunStatusBadge status={run.status} /><span className="text-xs text-[var(--muted-foreground)]">{formatDuration(run.durationMs)}</span></div>
+              <div className="min-w-0"><div className="truncate font-medium">{run.title}</div><div className="truncate text-sm text-[var(--muted-foreground)]">{run.project.name} / {run.thread.title}</div><div className="mt-1 line-clamp-2 text-sm text-[var(--muted-foreground)]">{run.outputPreview}</div></div>
+              <div className="flex shrink-0 flex-wrap items-center gap-2"><RunStatusBadge status={run.status} /><span className="text-xs text-[var(--muted-foreground)]">{formatDuration(run.durationMs)}</span></div>
             </CardContent></Card>
           </Link>
         ))}

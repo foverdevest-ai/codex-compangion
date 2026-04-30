@@ -20,15 +20,18 @@ export default async function ThreadsPage({ searchParams }: { searchParams: Prom
   return (
     <div className="space-y-5">
       <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-end">
-        <div>
-        <h1 className="text-2xl font-semibold">Threads</h1>
+        <div className="min-w-0">
+          <h1 className="text-2xl font-semibold">Threads</h1>
           <p className="mt-1 text-sm text-[var(--muted-foreground)]">
             {activeProject ? `Showing only ${activeProject.name}, sorted by latest prompt.` : "Choose a project to focus your cockpit."}
           </p>
         </div>
         <Link href="/projects" className="text-sm font-semibold text-[var(--color-primary-hover)]">Switch project</Link>
       </div>
-      <div className="relative"><Search className="absolute left-3 top-2.5 h-4 w-4 text-[var(--muted-foreground)]" /><Input className="pl-9" placeholder="Search threads, project names, outputs..." /></div>
+      <div className="relative">
+        <Search className="absolute left-3 top-3.5 h-4 w-4 text-[var(--muted-foreground)]" />
+        <Input className="pl-9" placeholder="Search threads, projects..." inputMode="search" />
+      </div>
       <div className="space-y-3">
         {!threads.length ? (
           <Card>
@@ -42,14 +45,17 @@ export default async function ThreadsPage({ searchParams }: { searchParams: Prom
           <Link key={thread.id} href={`/threads/${thread.id}`}>
             <Card className="hover:bg-[var(--muted)]">
               <CardContent className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <div className="flex items-center gap-2"><span className="font-medium">{thread.title}</span>{thread.unread ? <Badge tone="blue">changed</Badge> : null}</div>
-                  <div className="mt-1 text-sm text-[var(--muted-foreground)]">{thread.project.name} / {thread.summary}</div>
+                <div className="min-w-0">
+                  <div className="flex min-w-0 flex-wrap items-center gap-2">
+                    <span className="min-w-0 truncate font-medium">{thread.title}</span>
+                    {thread.unread ? <Badge tone="blue">changed</Badge> : null}
+                  </div>
+                  <div className="mt-1 line-clamp-2 text-sm text-[var(--muted-foreground)]">{thread.project.name} / {thread.summary}</div>
                   <div className="mt-2 text-xs text-[var(--muted-foreground)]">
-                    Last prompt {format(thread.lastMessageAt, "MMM d, yyyy HH:mm")} · {formatDistanceToNow(thread.lastMessageAt)} ago
+                    Last prompt {format(thread.lastMessageAt, "MMM d, yyyy HH:mm")} - {formatDistanceToNow(thread.lastMessageAt)} ago
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex shrink-0 flex-wrap items-center gap-2">
                   {thread.approvalRequests.length ? <Badge tone="amber">{thread.approvalRequests.length} approvals</Badge> : null}
                   {thread.runs[0] ? <RunStatusBadge status={thread.runs[0].status} /> : null}
                 </div>

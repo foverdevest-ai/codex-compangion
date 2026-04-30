@@ -31,17 +31,17 @@ export function ApprovalDetailPanel({ approval }: { approval: ApprovalWithLinks 
   }
 
   return (
-    <Card className="sticky top-[110px] h-fit">
-      <CardHeader>
-        <div className="flex items-start justify-between gap-3">
-          <div>
+    <Card className="h-fit lg:sticky lg:top-[110px]">
+      <CardHeader className="p-4 sm:p-5">
+        <div className="flex flex-col items-start justify-between gap-3 sm:flex-row">
+          <div className="min-w-0">
             <CardTitle>{approval.title}</CardTitle>
             <p className="mt-1 text-sm text-[var(--muted-foreground)]">{approval.summary}</p>
           </div>
           <ApprovalStatusBadge status={approval.status} />
         </div>
       </CardHeader>
-      <CardContent className="space-y-5">
+      <CardContent className="space-y-5 p-4 pt-0 sm:p-5 sm:pt-0">
         <div className="flex flex-wrap gap-2">
           <RiskBadge risk={approval.riskLevel} />
           <RunStatusBadge status={approval.run.status} />
@@ -56,7 +56,7 @@ export function ApprovalDetailPanel({ approval }: { approval: ApprovalWithLinks 
 
         <section>
           <h2 className="text-sm font-semibold">Reason</h2>
-          <p className="mt-2 rounded-md border bg-[var(--muted)] p-3 text-sm leading-6">{approval.detailedReason}</p>
+          <p className="mt-2 break-words rounded-md border bg-[var(--muted)] p-3 text-sm leading-6">{approval.detailedReason}</p>
         </section>
 
         <section>
@@ -79,7 +79,7 @@ export function ApprovalDetailPanel({ approval }: { approval: ApprovalWithLinks 
         ) : null}
 
         {approval.status === "PENDING" ? (
-          <div className="sticky bottom-0 -mx-5 flex gap-2 border-t bg-[var(--card)] p-5 safe-bottom">
+          <div className="safe-bottom sticky bottom-0 -mx-4 flex flex-col gap-2 border-t bg-[var(--card)] p-4 sm:-mx-5 sm:flex-row sm:p-5">
             <Button className="flex-1" onClick={() => decide("approve")} disabled={pending}><Check className="h-4 w-4" /> Approve</Button>
             <Button className="flex-1" variant="destructive" onClick={() => decide("reject")} disabled={pending}><X className="h-4 w-4" /> Reject</Button>
           </div>
@@ -93,7 +93,7 @@ function Detail({ label, value }: { label: string; value: string }) {
   return (
     <div>
       <div className="text-xs font-semibold uppercase tracking-wide text-[var(--muted-foreground)]">{label}</div>
-      <div className="mt-1 text-sm">{value}</div>
+      <div className="mt-1 break-words text-sm">{value}</div>
     </div>
   );
 }

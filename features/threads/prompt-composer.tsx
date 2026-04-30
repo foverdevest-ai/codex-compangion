@@ -23,15 +23,15 @@ export function PromptComposer({ threadId, draft }: { threadId: string; draft: s
   }
 
   return (
-    <div className="fixed inset-x-0 bottom-[70px] z-30 border-t bg-[var(--card)] p-3 lg:sticky lg:bottom-4 lg:rounded-lg lg:border safe-bottom">
+    <div className="safe-bottom fixed inset-x-0 bottom-[76px] z-30 border-t bg-[var(--card)] p-3 backdrop-blur-[var(--glass-blur)] lg:sticky lg:bottom-4 lg:rounded-lg lg:border">
       <div className="mx-auto flex max-w-4xl flex-col gap-2">
-        <Textarea value={value} onChange={(event) => setValue(event.target.value)} placeholder="Send the next precise instruction. Context and approvals stay attached to this thread." />
-        <div className="flex items-center justify-between gap-2">
-          <div className="flex gap-2">
+        <Textarea className="max-h-36 min-h-20" value={value} onChange={(event) => setValue(event.target.value)} placeholder="Send the next precise instruction." />
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+          <div className="grid grid-cols-2 gap-2 sm:flex">
             <Button variant="outline" size="sm" type="button"><Copy className="h-4 w-4" /> Copy last</Button>
             <Button variant="outline" size="sm" type="button"><RotateCcw className="h-4 w-4" /> Reuse</Button>
           </div>
-          <Button onClick={submit} disabled={pending || !value.trim()}><Send className="h-4 w-4" /> Send</Button>
+          <Button className="w-full sm:w-auto" onClick={submit} disabled={pending || !value.trim()}><Send className="h-4 w-4" /> Send</Button>
         </div>
       </div>
     </div>

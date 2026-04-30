@@ -22,7 +22,7 @@ export default async function ProjectsPage() {
   return (
     <div className="space-y-5">
       <PageHeader title="Projects" description="Choose the project cockpit you want active on mobile and desktop." action="Create project" />
-      <Input placeholder="Search projects..." />
+      <Input placeholder="Search projects..." inputMode="search" />
       <ProjectGrid projects={visibleProjects} hidden={false} />
       {hiddenProjects.length ? (
         <section className="space-y-3">
@@ -63,41 +63,41 @@ function ProjectGrid({ projects, hidden }: { projects: ProjectWithMeta[]; hidden
         const latestThread = project.threads[0];
         return (
           <Card key={project.id} className={hidden ? "opacity-75" : ""}>
-            <CardHeader>
+            <CardHeader className="p-4 sm:p-5">
               <div className="flex items-start justify-between gap-3">
-                <div>
+                <div className="min-w-0">
                   <CardTitle>{project.name}</CardTitle>
-                  <p className="mt-1 text-sm text-[var(--muted-foreground)]">{project.description}</p>
+                  <p className="mt-1 line-clamp-3 text-sm text-[var(--muted-foreground)]">{project.description}</p>
                 </div>
-                {project.approvalRequests.length ? <Badge tone="amber">{project.approvalRequests.length} pending</Badge> : <Badge tone="green">clear</Badge>}
+                <div className="shrink-0">{project.approvalRequests.length ? <Badge tone="amber">{project.approvalRequests.length} pending</Badge> : <Badge tone="green">clear</Badge>}</div>
               </div>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-4 pt-0 sm:p-5 sm:pt-0">
               <div className="mb-4 grid gap-2 text-sm text-[var(--muted-foreground)] sm:grid-cols-2">
-                <div>
+                <div className="min-w-0">
                   <div className="font-semibold text-[var(--foreground)]">Last project activity</div>
                   <div>{format(project.lastActiveAt, "MMM d, yyyy HH:mm")}</div>
                   <div>{formatDistanceToNow(project.lastActiveAt)} ago</div>
                 </div>
-                <div>
+                <div className="min-w-0">
                   <div className="font-semibold text-[var(--foreground)]">Last thread prompt</div>
                   <div>{latestThread ? format(latestThread.lastMessageAt, "MMM d, yyyy HH:mm") : "No prompts yet"}</div>
-                  {latestThread ? <div>{latestThread.title}</div> : null}
+                  {latestThread ? <div className="truncate">{latestThread.title}</div> : null}
                 </div>
               </div>
               <div className="mb-4 flex flex-wrap gap-2">
                 <Badge>{project._count.threads} threads</Badge>
                 {project.tags.slice(0, 3).map((tag) => <Badge key={tag}>{tag}</Badge>)}
               </div>
-              <div className="flex flex-wrap items-center justify-between gap-2">
+              <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
                 {hidden ? <span className="text-sm text-[var(--muted-foreground)]">Hidden from Threads and Approvals</span> : (
-                  <Button asChild size="sm">
+                  <Button asChild size="sm" className="w-full sm:w-auto">
                     <Link href={`/api/projects/${project.id}/activate`}>Open threads</Link>
                   </Button>
                 )}
-                <form action={`/api/projects/${project.id}/visibility`} method="post">
+                <form action={`/api/projects/${project.id}/visibility`} method="post" className="w-full sm:w-auto">
                   <input type="hidden" name="status" value={hidden ? "ACTIVE" : "HIDDEN"} />
-                  <Button type="submit" size="sm" variant="outline">{hidden ? "Show in cockpit" : "Hide from cockpit"}</Button>
+                  <Button type="submit" size="sm" variant="outline" className="w-full sm:w-auto">{hidden ? "Show in cockpit" : "Hide from cockpit"}</Button>
                 </form>
               </div>
             </CardContent>
@@ -115,7 +115,7 @@ function PageHeader({ title, description, action }: { title: string; description
         <h1 className="text-2xl font-semibold">{title}</h1>
         <p className="mt-1 text-sm text-[var(--muted-foreground)]">{description}</p>
       </div>
-      <Button>{action}</Button>
+      <Button className="w-full sm:w-auto">{action}</Button>
     </div>
   );
 }

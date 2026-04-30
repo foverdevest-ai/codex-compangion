@@ -54,12 +54,12 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
       </aside>
 
       <div className="lg:pl-64">
-        <header className="sticky top-0 z-20 border-b bg-[var(--color-glass-bg)] px-4 py-3 backdrop-blur-[var(--glass-blur)]">
+        <header className="safe-top sticky top-0 z-20 border-b bg-[var(--color-glass-bg)] px-3 py-3 backdrop-blur-[var(--glass-blur)] sm:px-4">
           <div className="flex items-center justify-between gap-3">
-            <Link href="/projects" className="font-[family-name:var(--font-heading)] font-semibold lg:hidden">Codex Companion</Link>
+            <Link href="/projects" className="min-w-0 truncate font-[family-name:var(--font-heading)] font-semibold lg:hidden">Codex Companion</Link>
             <div className="hidden text-sm text-[var(--muted-foreground)] lg:block">{activeProject ? `${activeProject.name} cockpit` : "Project-focused coding cockpit"}</div>
-            <div className="flex items-center gap-2">
-              <Button asChild size="sm">
+            <div className="flex shrink-0 items-center gap-2">
+              <Button asChild size="sm" className="px-3">
                 <Link href={`/threads${projectQuery}`}><PlusCircle className="h-4 w-4" /> Compose</Link>
               </Button>
               {session?.user ? <SessionMenu email={session.user.email} /> : null}
@@ -73,12 +73,12 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
           </Link>
         ) : null}
 
-        <main className="mx-auto w-full max-w-7xl px-4 py-5 pb-24 sm:px-6 lg:px-8">{children}</main>
+        <main className="mobile-bottom-nav-offset mx-auto w-full max-w-7xl px-3 py-4 sm:px-6 sm:py-5 lg:px-8 lg:pb-8">{children}</main>
       </div>
 
-      <nav className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-3 border-t bg-[var(--color-glass-bg)] px-2 py-2 shadow-[var(--glass-elevation)] backdrop-blur-[var(--glass-blur)] lg:hidden safe-bottom">
+      <nav className="safe-bottom fixed inset-x-0 bottom-0 z-40 grid grid-cols-3 border-t bg-[var(--color-glass-bg)] px-2 py-2 shadow-[var(--glass-elevation)] backdrop-blur-[var(--glass-blur)] lg:hidden">
         {nav.map(([label, href, Icon]) => (
-          <Link key={href} href={label === "Projects" ? href : `${href}${projectQuery}`} className="flex flex-col items-center gap-1 rounded-[var(--radius-md)] px-2 py-1 text-xs font-semibold text-[var(--muted-foreground)]">
+          <Link key={href} href={label === "Projects" ? href : `${href}${projectQuery}`} className="flex min-h-14 flex-col items-center justify-center gap-1 rounded-[var(--radius-md)] px-2 py-1 text-xs font-semibold text-[var(--muted-foreground)]">
             <span className="relative">
               <Icon className="h-5 w-5" />
               {label === "Approvals" && pendingApprovals > 0 ? <span className="absolute -right-2 -top-2 rounded-full bg-amber-500 px-1 text-[10px] font-bold text-white">{pendingApprovals}</span> : null}

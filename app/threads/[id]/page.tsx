@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import { PromptComposer } from "@/features/threads/prompt-composer";
+import { ThreadAutoRefresh } from "@/features/threads/thread-auto-refresh";
 import { ApprovalInlineBanner } from "@/features/approvals/approval-inline-banner";
 import { RunStatusBadge } from "@/components/layout/status-badges";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,12 +22,13 @@ export default async function ThreadDetailPage({ params }: { params: Promise<{ i
   const run = thread.runs[0];
 
   return (
-    <div className="space-y-5">
-      <div className="sticky top-[98px] z-10 -mx-4 border-b bg-[var(--background)] px-4 py-3 sm:mx-0 sm:rounded-lg sm:border">
+    <div className="space-y-5 pb-44 lg:pb-0">
+      <ThreadAutoRefresh runStatus={run?.status} />
+      <div className="sticky top-[64px] z-10 -mx-3 border-b bg-[var(--background)] px-3 py-3 sm:mx-0 sm:rounded-lg sm:border sm:px-4 lg:top-[98px]">
         <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-          <div>
-            <div className="text-sm text-[var(--muted-foreground)]">{thread.project.name}</div>
-            <h1 className="text-xl font-semibold">{thread.title}</h1>
+          <div className="min-w-0">
+            <div className="truncate text-sm text-[var(--muted-foreground)]">{thread.project.name}</div>
+            <h1 className="line-clamp-2 text-xl font-semibold">{thread.title}</h1>
           </div>
           <div className="flex items-center gap-2">{run ? <RunStatusBadge status={run.status} /> : null}</div>
         </div>
@@ -38,11 +40,11 @@ export default async function ThreadDetailPage({ params }: { params: Promise<{ i
         <section className="space-y-4">
           {thread.messages.map((message) => (
             <article key={message.id} className="rounded-lg border bg-[var(--card)] p-4">
-              <div className="mb-2 flex items-center justify-between text-xs text-[var(--muted-foreground)]">
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-2 text-xs text-[var(--muted-foreground)]">
                 <span className="font-semibold uppercase tracking-wide">{message.role.toLowerCase()}</span>
                 <time>{message.createdAt.toLocaleString()}</time>
               </div>
-              <p className="whitespace-pre-wrap text-sm leading-6">{message.content}</p>
+              <p className="whitespace-pre-wrap break-words text-sm leading-6">{message.content}</p>
             </article>
           ))}
           {run ? (
@@ -50,7 +52,7 @@ export default async function ThreadDetailPage({ params }: { params: Promise<{ i
               <CardHeader><CardTitle>Live Run Stream</CardTitle></CardHeader>
               <CardContent className="space-y-2" aria-live="polite">
                 {run.events.map((event) => (
-                  <div key={event.id} className="rounded-md bg-[var(--muted)] px-3 py-2 text-sm">
+                  <div key={event.id} className="break-words rounded-md bg-[var(--muted)] px-3 py-2 text-sm">
                     <span className="mr-2 font-medium">{event.type.toLowerCase()}</span>{event.content}
                   </div>
                 ))}
