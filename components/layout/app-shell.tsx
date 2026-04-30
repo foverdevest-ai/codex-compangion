@@ -55,7 +55,7 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
 
       <div className="lg:pl-64">
         <header className="safe-top sticky top-0 z-20 border-b bg-[var(--color-glass-bg)] px-3 py-3 backdrop-blur-[var(--glass-blur)] sm:px-4">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center justify-between gap-2">
             <Link href="/projects" className="min-w-0 truncate font-[family-name:var(--font-heading)] font-semibold lg:hidden">Codex Companion</Link>
             <div className="hidden text-sm text-[var(--muted-foreground)] lg:block">{activeProject ? `${activeProject.name} cockpit` : "Project-focused coding cockpit"}</div>
             <div className="flex shrink-0 items-center gap-2">
@@ -65,10 +65,19 @@ export async function AppShell({ children }: { children: React.ReactNode }) {
               {session?.user ? <SessionMenu email={session.user.email} /> : null}
             </div>
           </div>
+          {activeProject ? (
+            <Link href="/projects" className="mt-2 flex min-h-11 items-center justify-between rounded-[var(--radius-md)] border bg-white/70 px-3 py-2 text-xs dark:bg-white/5 lg:hidden">
+              <span className="min-w-0">
+                <span className="block font-semibold uppercase text-[var(--muted-foreground)]">Active project</span>
+                <span className="block truncate text-sm font-semibold text-[var(--foreground)]">{activeProject.name}</span>
+              </span>
+              <span className="ml-3 shrink-0 font-semibold text-[var(--color-primary-hover)]">Switch</span>
+            </Link>
+          ) : null}
         </header>
 
         {pendingApprovals > 0 ? (
-          <Link href="/approvals" className="sticky top-[57px] z-10 block border-b border-[var(--color-warning-border)] bg-[var(--color-warning-surface)] px-4 py-2 text-sm font-semibold text-[var(--color-primary-hover)] dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100">
+          <Link href={`/approvals${projectQuery}`} className="sticky top-[104px] z-10 block border-b border-[var(--color-warning-border)] bg-[var(--color-warning-surface)] px-4 py-2 text-sm font-semibold text-[var(--color-primary-hover)] dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100 lg:top-[57px]">
             {pendingApprovals} approval{pendingApprovals === 1 ? "" : "s"} waiting. Review now to resume paused runs.
           </Link>
         ) : null}

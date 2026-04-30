@@ -24,7 +24,7 @@ export default async function ThreadDetailPage({ params }: { params: Promise<{ i
   return (
     <div className="space-y-5 pb-44 lg:pb-0">
       <ThreadAutoRefresh runStatus={run?.status} />
-      <div className="sticky top-[64px] z-10 -mx-3 border-b bg-[var(--background)] px-3 py-3 sm:mx-0 sm:rounded-lg sm:border sm:px-4 lg:top-[98px]">
+      <div className="sticky top-[112px] z-10 -mx-3 border-b bg-[var(--background)] px-3 py-3 sm:mx-0 sm:rounded-lg sm:border sm:px-4 lg:top-[98px]">
         <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
           <div className="min-w-0">
             <div className="truncate text-sm text-[var(--muted-foreground)]">{thread.project.name}</div>
@@ -49,7 +49,12 @@ export default async function ThreadDetailPage({ params }: { params: Promise<{ i
           ))}
           {run ? (
             <Card>
-              <CardHeader><CardTitle>Live Run Stream</CardTitle></CardHeader>
+              <CardHeader>
+                <CardTitle>Live Run Stream</CardTitle>
+                {["QUEUED", "RUNNING", "WAITING_APPROVAL"].includes(run.status) ? (
+                  <p className="text-sm text-[var(--muted-foreground)]">Auto-refreshing while Codex works.</p>
+                ) : null}
+              </CardHeader>
               <CardContent className="space-y-2" aria-live="polite">
                 {run.events.map((event) => (
                   <div key={event.id} className="break-words rounded-md bg-[var(--muted)] px-3 py-2 text-sm">
