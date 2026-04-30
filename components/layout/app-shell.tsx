@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { SessionMenu } from "@/components/auth/session-menu";
 import { authOptions } from "@/server/auth/options";
+import { isAllowedUser } from "@/server/auth/config";
 
 const nav = [
   ["Home", "/", Home],
@@ -20,10 +21,14 @@ const nav = [
 ] as const;
 
 export async function AppShell({ children }: { children: React.ReactNode }) {
-  const [pendingApprovals, session] = await Promise.all([
-    prisma.approvalRequest.count({ where: { status: "PENDING" } }).catch(() => 0),
-    getServerSession(authOptions).catch(() => null)
-  ]);
+  const session = await getServerSession(authOptions).catch(() => null);
+  const isAllowedSession = isAllowedUser(session?.user?.email);
+
+  if (!isAllowedSession) {
+    return <>{children}</>;
+  }
+
+  const pendingApprovals = await prisma.approvalRequest.count({ where: { status: "PENDING" } }).catch(() => 0);
 
   return (
     <div className="min-h-screen bg-[var(--background)]">
