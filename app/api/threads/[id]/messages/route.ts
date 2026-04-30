@@ -16,5 +16,5 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const provider = new CodexAppServerProvider();
   const message = await provider.appendMessage(id, body.content);
   const run = await provider.startRun({ projectId: thread.projectId, threadId: id, prompt: body.content });
-  return NextResponse.json({ message, run, runner: { configured: Boolean(run.providerRunId) } });
+  return NextResponse.json({ message, run, runner: { configured: run.status === "QUEUED" || Boolean(run.providerRunId) } });
 }

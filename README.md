@@ -81,6 +81,12 @@ set CODEX_RUNNER_MODE=polling
 npm run codex:runner
 ```
 
+On Windows, create an ignored `.env.runner.local` with `CODEX_COMPANION_DATABASE_URL` for the production Neon database, then start the runner in the background:
+
+```powershell
+.\scripts\start-codex-runner.ps1
+```
+
 In production, set `CODEX_RUNNER_MODE=polling` on Vercel. The Vercel app writes queued runs to Neon; the runner only needs outbound database access, so it works from a laptop, VPS, or container without exposing an inbound webhook.
 
 Production uses:

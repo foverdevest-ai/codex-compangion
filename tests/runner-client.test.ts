@@ -7,6 +7,17 @@ describe("CodexRunnerClient", () => {
     expect(client.configured).toBe(false);
   });
 
+  it("detects polling mode without exposing runner credentials", () => {
+    vi.stubEnv("CODEX_RUNNER_MODE", "polling");
+
+    const client = new CodexRunnerClient();
+
+    expect(client.pollingMode).toBe(true);
+    expect(client.configured).toBe(false);
+
+    vi.unstubAllEnvs();
+  });
+
   it("sends bearer-authenticated start run requests when configured", async () => {
     vi.stubEnv("CODEX_RUNNER_URL", "https://runner.example.test");
     vi.stubEnv("CODEX_RUNNER_TOKEN", "secret");

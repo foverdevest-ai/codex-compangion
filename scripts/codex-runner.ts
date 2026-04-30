@@ -3,7 +3,28 @@ import { randomUUID } from "node:crypto";
 import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { homedir, tmpdir } from "node:os";
-import { PrismaClient, type RunEventType } from "@prisma/client";
+import type { RunEventType } from "@prisma/client";
+
+const explicitEnvKeys = new Set(Object.keys(process.env));
+
+function parseEnvFile(path: string) {
+  if (!existsSync(path)) return;
+  for (const rawLine of readFileSync(path, "utf8").split(/\r?\n/)) {
+    const line = rawLine.trim();
+    if (!line || line.startsWith("#")) continue;
+    const separator = line.indexOf("=");
+    if (separator === -1) continue;
+    const key = line.slice(0, separator).trim().replace(/^\uFEFF/, "");
+    const rawValue = line.slice(separator + 1).trim();
+    const value = rawValue.replace(/^["']|["']$/g, "");
+    if (!key || !value || explicitEnvKeys.has(key)) continue;
+    process.env[key] = value;
+  }
+}
+
+parseEnvFile(join(process.cwd(), ".env"));
+parseEnvFile(join(process.cwd(), ".env.production.local"));
+parseEnvFile(join(process.cwd(), ".env.runner.local"));
 
 const databaseUrl = process.env.CODEX_COMPANION_DATABASE_URL ?? process.env.DATABASE_URL ?? "";
 
@@ -11,13 +32,7 @@ if (!databaseUrl) {
   throw new Error("Set CODEX_COMPANION_DATABASE_URL or DATABASE_URL before starting the Codex runner.");
 }
 
-const prisma = new PrismaClient({
-  datasources: {
-    db: {
-      url: databaseUrl
-    }
-  }
-});
+let prisma: InstanceType<typeof import("@prisma/client").PrismaClient>;
 const pollMs = Number(process.env.CODEX_RUNNER_POLL_MS ?? 5000);
 const codexBin = process.env.CODEX_BIN ?? (process.platform === "win32" ? join(homedir(), "AppData", "Roaming", "npm", "codex.cmd") : "codex");
 const runnerId = process.env.CODEX_RUNNER_ID ?? `local-${randomUUID()}`;
@@ -126,19 +141,35 @@ function runCodex(prompt: string, cwd: string, onEvent: (event: CodexJsonEvent) 
 }
 
 async function processRun() {
-  const run = await prisma.run.findFirst({
+  const queuedRun = await prisma.run.findFirst({
     where: {
       status: "QUEUED",
       providerRunId: null
     },
-    orderBy: { createdAt: "asc" },
+    orderBy: { createdAt: "asc" }
+  });
+
+  if (!queuedRun) return false;
+
+  const providerRunId = `codex-local-${Date.now()}-${randomUUID()}`;
+  const claimed = await prisma.run.updateMany({
+    where: {
+      id: queuedRun.id,
+      status: "QUEUED",
+      providerRunId: null
+    },
+    data: { status: "RUNNING", providerRunId, startedAt: new Date() }
+  });
+
+  if (claimed.count !== 1) return false;
+
+  const run = await prisma.run.findUniqueOrThrow({
+    where: { id: queuedRun.id },
     include: {
       project: true,
       thread: { include: { messages: { orderBy: { createdAt: "asc" } } } }
     }
   });
-
-  if (!run) return false;
 
   const workspaceDir = await getWorkspaceDir(run.projectId);
   if (!workspaceDir || !existsSync(workspaceDir)) {
@@ -154,11 +185,6 @@ async function processRun() {
     return true;
   }
 
-  const providerRunId = `codex-local-${Date.now()}`;
-  await prisma.run.update({
-    where: { id: run.id },
-    data: { status: "RUNNING", providerRunId, startedAt: new Date() }
-  });
   await createEvent(run.id, "STATUS_CHANGE", `Picked up by ${runnerId} in ${workspaceDir}.`);
 
   const latestUserMessage = [...run.thread.messages].reverse().find((message) => message.role === "USER");
@@ -222,10 +248,22 @@ process.on("SIGINT", () => {
   stopping = true;
 });
 
-loop()
-  .then(async () => prisma.$disconnect())
+async function main() {
+  const { PrismaClient } = await import("@prisma/client");
+  prisma = new PrismaClient({
+    datasources: {
+      db: {
+        url: databaseUrl
+      }
+    }
+  });
+  await loop();
+}
+
+main()
+  .then(async () => prisma?.$disconnect())
   .catch(async (error) => {
     console.error(error);
-    await prisma.$disconnect();
+    await prisma?.$disconnect();
     process.exit(1);
   });
