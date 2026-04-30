@@ -18,6 +18,10 @@ export class CodexRunnerClient {
   private readonly baseUrl = process.env.CODEX_RUNNER_URL ?? process.env.CODEX_APP_SERVER_URL;
   private readonly token = process.env.CODEX_RUNNER_TOKEN ?? process.env.CODEX_APP_SERVER_TOKEN;
 
+  get pollingMode() {
+    return process.env.CODEX_RUNNER_MODE === "polling";
+  }
+
   get configured() {
     return Boolean(
       this.baseUrl &&

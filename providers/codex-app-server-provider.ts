@@ -15,22 +15,24 @@ export class CodexAppServerProvider implements CodingBackendProvider {
   }
 
   async startRun(input: StartRunInput) {
+    const usesRunner = this.runner.configured || this.runner.pollingMode;
     const run = await prisma.run.create({
       data: {
         projectId: input.projectId,
         threadId: input.threadId,
         title: input.prompt.slice(0, 90),
-        status: this.runner.configured ? "QUEUED" : "RUNNING",
+        status: usesRunner ? "QUEUED" : "RUNNING",
         startedAt: new Date(),
         events: {
           create: [
-            { sequence: 1, type: "STATUS_CHANGE", content: this.runner.configured ? "Queued for cloud Codex runner" : "Run started in local scaffold mode" },
-            { sequence: 2, type: "OUTPUT_DELTA", content: this.runner.configured ? "Connecting to cloud Codex runner..." : "Configure CODEX_RUNNER_URL and CODEX_RUNNER_TOKEN to execute real Codex tasks." }
+            { sequence: 1, type: "STATUS_CHANGE", content: usesRunner ? "Queued for Codex runner" : "Run started in local scaffold mode" },
+            { sequence: 2, type: "OUTPUT_DELTA", content: usesRunner ? "Waiting for a Codex runner to pick up this task..." : "Configure CODEX_RUNNER_MODE=polling or CODEX_RUNNER_URL to execute real Codex tasks." }
           ]
         }
       }
     });
 
+    if (this.runner.pollingMode && !this.runner.configured) return run;
     if (!this.runner.configured) return run;
 
     try {

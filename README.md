@@ -64,6 +64,25 @@ For real 4G/mobile usage, deploy the app to Vercel with Neon Postgres and Google
 
 See [docs/deployment/mobile-cloud.md](docs/deployment/mobile-cloud.md).
 
+## Codex Desktop Sync And Runner
+
+Codex Companion can mirror local Codex Desktop workspaces into the production database and queue prompts for a local runner.
+
+Sync local Codex projects/threads into the configured database:
+
+```bash
+npm run codex:sync-local
+```
+
+Run the local Codex runner. This polls Postgres for queued runs, executes `codex exec` in the project's `codex.workspace_dir`, and writes output back to the thread:
+
+```bash
+set CODEX_RUNNER_MODE=polling
+npm run codex:runner
+```
+
+In production, set `CODEX_RUNNER_MODE=polling` on Vercel. The Vercel app writes queued runs to Neon; the runner only needs outbound database access, so it works from a laptop, VPS, or container without exposing an inbound webhook.
+
 Production uses:
 
 ```bash
