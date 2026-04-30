@@ -3,27 +3,40 @@ import { PrismaClient } from "@prisma/client";
 const prisma = new PrismaClient();
 
 async function main() {
-  await prisma.approvalDecision.deleteMany();
-  await prisma.approvalRequest.deleteMany();
-  await prisma.runEvent.deleteMany();
-  await prisma.run.deleteMany();
-  await prisma.message.deleteMany();
-  await prisma.attachment.deleteMany();
-  await prisma.artifact.deleteMany();
-  await prisma.promptTemplate.deleteMany();
-  await prisma.projectContext.deleteMany();
-  await prisma.thread.deleteMany();
-  await prisma.notification.deleteMany();
-  await prisma.appSetting.deleteMany();
-  await prisma.project.deleteMany();
-  await prisma.user.deleteMany();
+  const seedEmail = process.env.SEED_USER_EMAIL ?? "dev@personeel.com";
+  const shouldReset = process.env.SEED_RESET === "true";
 
-  const user = await prisma.user.create({
-    data: {
-      email: "founder@codex-companion.local",
-      name: "Founder"
+  if (shouldReset) {
+    await prisma.approvalDecision.deleteMany();
+    await prisma.approvalRequest.deleteMany();
+    await prisma.runEvent.deleteMany();
+    await prisma.run.deleteMany();
+    await prisma.message.deleteMany();
+    await prisma.attachment.deleteMany();
+    await prisma.artifact.deleteMany();
+    await prisma.promptTemplate.deleteMany();
+    await prisma.projectContext.deleteMany();
+    await prisma.thread.deleteMany();
+    await prisma.notification.deleteMany();
+    await prisma.appSetting.deleteMany();
+    await prisma.project.deleteMany();
+    await prisma.user.deleteMany();
+  }
+
+  const user = await prisma.user.upsert({
+    where: { email: seedEmail },
+    update: { name: "Dev Personeel" },
+    create: {
+      email: seedEmail,
+      name: "Dev Personeel"
     }
   });
+
+  const existingProjectCount = await prisma.project.count({ where: { ownerId: user.id } });
+  if (existingProjectCount > 0 && !shouldReset) {
+    console.log(`Seed skipped: ${seedEmail} already has ${existingProjectCount} project(s).`);
+    return;
+  }
 
   const workspace = await prisma.project.create({
     data: {
